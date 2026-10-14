@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sitio Automotriz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+    --text:#0b0b0b; --text-2:#52514e; --muted:#898781;
+    --border:rgba(11,11,11,0.10); --grid:#e1e0d9;
+    --accent:#2a78d6; --accent-soft:#e3edfb;
+    --good:#0ca30c; --warning:#c98100; --serious:#ec835a; --critical:#d03b3b;
+    --sev-high:#b33923; --sev-medium:#c17a0e; --sev-low:#a9842f;
+    --sev-high-soft:#fbe2db; --sev-medium-soft:#f8ead0; --sev-low-soft:#f1e6cf;
+    --shadow: 0 1px 2px rgba(11,11,11,0.06), 0 8px 24px rgba(11,11,11,0.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222221;
+      --text:#ffffff; --text-2:#c3c2b7; --muted:#8f8d85;
+      --border:rgba(255,255,255,0.12); --grid:#2c2c2a;
+      --accent:#5d9cf0; --accent-soft:#1c2a3b;
+      --good:#2fce2f; --warning:#fab219; --serious:#f0936c; --critical:#e66767;
+      --sev-high:#e2694a; --sev-medium:#e0a23d; --sev-low:#d3b06a;
+      --sev-high-soft:#3a241d; --sev-medium-soft:#3a2f1a; --sev-low-soft:#332c1c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#222221;
+    --text:#ffffff; --text-2:#c3c2b7; --muted:#8f8d85;
+    --border:rgba(255,255,255,0.12); --grid:#2c2c2a;
+    --accent:#5d9cf0; --accent-soft:#1c2a3b;
+    --good:#2fce2f; --warning:#fab219; --serious:#f0936c; --critical:#e66767;
+    --sev-high:#e2694a; --sev-medium:#e0a23d; --sev-low:#d3b06a;
+    --sev-high-soft:#3a241d; --sev-medium-soft:#3a2f1a; --sev-low-soft:#332c1c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--page); color:var(--text);
+    font-family:'Sora',system-ui,-apple-system,"Segoe UI",sans-serif;
+    padding-inline:16px;
+  }
+  h1,h2,h3{font-family:'Sora',system-ui,sans-serif; font-weight:700; text-wrap:balance; margin:0;}
+  code,.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  p{color:var(--text-2); line-height:1.55; margin:0;}
+
+  .shell{max-width:1180px; margin:0 auto; display:flex; gap:24px; padding-block:20px 48px;}
+  .sidebar{
+    width:216px; flex:none; position:sticky; top:16px; align-self:flex-start;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .brand{display:flex; flex-direction:column; gap:2px; padding:10px 12px 18px;}
+  .brand .name{font-size:15px; font-weight:700;}
+  .brand .sub{font-size:11.5px; color:var(--muted); letter-spacing:.02em;}
+  .nav-btn{
+    display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:9px;
+    border:none; background:transparent; color:var(--text-2); font:inherit; font-size:14px;
+    font-weight:600; cursor:pointer; text-align:left; width:100%;
+  }
+  .nav-btn[hidden]{display:none;}
+  .nav-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none;}
+  .nav-btn.active{background:var(--accent-soft); color:var(--accent);}
+  .nav-btn.active .dot{background:var(--accent);}
+  .nav-btn:hover:not(.active){background:var(--surface-2);}
+  .theme-toggle{
+    margin-top:auto; display:flex; align-items:center; justify-content:space-between;
+    padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface);
+    font-size:12.5px; color:var(--text-2); font-weight:600;
+  }
+  .theme-toggle button{
+    border:none; background:var(--surface-2); color:var(--text); border-radius:6px;
+    padding:4px 9px; font:inherit; font-weight:600; font-size:12px; cursor:pointer;
+  }
+
+  main{flex:1; min-width:0;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .view-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px;}
+  .view-head h1{font-size:23px;}
+  .view-head .meta{font-size:12.5px; color:var(--muted);}
+
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px; margin-bottom:22px;}
+  .tile{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px; box-shadow:var(--shadow); min-width:0;
+  }
+  .tile .label{font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em;}
+  .tile .value{font-size:28px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .tile .value small{font-size:14px; color:var(--text-2); font-weight:600;}
+  .tile.accent-good .value{color:var(--good);}
+  .tile.accent-critical .value{color:var(--critical);}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:18px; box-shadow:var(--shadow); min-width:0; margin-bottom:16px;
+  }
+  .card h2,.card h3{font-size:14.5px;}
+  .card .card-sub{font-size:12px; color:var(--muted); margin-top:2px;}
+
+  .donut-row{display:flex; align-items:center; gap:22px; margin-top:14px; flex-wrap:wrap;}
+  .donut{width:148px;height:148px;border-radius:50%; flex:none; position:relative;}
+  .donut .hole{position:absolute; inset:21%; border-radius:50%; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .donut .hole b{font-size:22px; font-variant-numeric:tabular-nums;}
+  .donut .hole span{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+  .legend{display:flex; flex-direction:column; gap:9px; font-size:13px;}
+  .legend-item{display:flex; align-items:center; gap:8px;}
+  .legend-item .swatch{width:10px;height:10px;border-radius:3px; flex:none;}
+  .legend-item .n{margin-left:auto; font-variant-numeric:tabular-nums; font-weight:600; color:var(--text);}
+  .legend-item .pct{color:var(--muted); font-size:11.5px; width:38px; text-align:right;}
+
+  .barchart{display:flex; flex-direction:column; gap:12px; margin-top:16px;}
+  .bar-row{display:grid; grid-template-columns:140px 1fr 34px; align-items:center; gap:10px; font-size:12.5px;}
+  .bar-row .bar-track{height:14px; background:var(--surface-2); border-radius:7px; overflow:hidden;}
+  .bar-row .bar-fill{height:100%; border-radius:7px 0 0 7px;}
+  .bar-row .n{text-align:right; font-variant-numeric:tabular-nums; font-weight:600;}
+
+  .filters{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+  .chip{
+    border:1px solid var(--border); background:var(--surface); color:var(--text-2);
+    border-radius:999px; padding:6px 13px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  .chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+  .sev-pill{
+    font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; flex:none; display:inline-block;
+  }
+  .sev-High{background:var(--sev-high-soft); color:var(--sev-high);}
+  .sev-Medium{background:var(--sev-medium-soft); color:var(--sev-medium);}
+  .sev-Low{background:var(--sev-low-soft); color:var(--sev-low);}
+  .res-pill{
+    font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; flex:none;
+    display:inline-flex; align-items:center; gap:5px; white-space:nowrap;
+  }
+  .res-pill::before{content:""; width:6px;height:6px;border-radius:50%;}
+  .res-bug{background:color-mix(in srgb, var(--critical) 14%, transparent); color:var(--critical);}
+  .res-bug::before{background:var(--critical);}
+  .res-ok{background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good);}
+  .res-ok::before{background:var(--good);}
+  .res-no-repro{background:var(--surface-2); color:var(--muted);}
+  .res-no-repro::before{background:var(--muted);}
+
+  table.data{width:100%; border-collapse:collapse; font-size:13px;}
+  table.data th{text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.03em; font-weight:600; padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap;}
+  table.data td{padding:10px; border-bottom:1px solid var(--border); vertical-align:top;}
+  table.data tr:last-child td{border-bottom:none;}
+  table.data td.id-cell{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-2); white-space:nowrap;}
+  table.data td.wrap{min-width:220px;}
+  .bug-ref{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); margin-left:6px;}
+  .empty-state{color:var(--muted); font-size:13px; padding:18px 4px;}
+
+  .bug-list{display:flex; flex-direction:column; gap:10px;}
+  .bug-item{border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+  .bug-item + .bug-item{margin-top:0;}
+  .bug-head{display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; flex-wrap:wrap; background:var(--surface);}
+  .bug-title{flex:1; min-width:160px; font-size:13.5px; font-weight:600;}
+  .bug-id{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); flex:none;}
+  .bug-tcs{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); flex:none;}
+  .bug-chevron{color:var(--muted); font-size:12px; transition:transform .15s; flex:none; margin-left:auto;}
+  .bug-item.open .bug-chevron{transform:rotate(90deg);}
+  .bug-body{display:none; padding:16px; border-top:1px solid var(--border);}
+  .bug-item.open .bug-body{display:block;}
+  .bug-kv{display:grid; grid-template-columns:140px 1fr; gap:10px 14px; font-size:13px; margin-bottom:14px;}
+  .bug-kv dt{color:var(--muted); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; padding-top:2px;}
+  .bug-kv dd{margin:0; color:var(--text);}
+  .repro-steps{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:7px;}
+  .repro-steps li{padding-left:2px;}
+  .evidence-shot{margin-top:4px;}
+  .evidence-shot img{max-width:100%; border-radius:8px; border:1px solid var(--border); display:block;}
+  .evidence-missing{color:var(--muted); font-size:12.5px; font-style:italic;}
+
+  @media (max-width:860px){
+    .shell{flex-direction:column; padding-inline:0;}
+    .sidebar{
+      position:sticky; top:0; width:auto; flex-direction:row; overflow-x:auto;
+      background:var(--page); padding:10px 16px; border-bottom:1px solid var(--border); z-index:10; gap:6px;
+    }
+    .brand, .theme-toggle{display:none;}
+    .nav-btn{width:auto; white-space:nowrap;}
+    main{padding-inline:16px;}
+    .grid-2{grid-template-columns:1fr;}
+    table.data{display:block; overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="brand">
+      <span class="name">Sitio Automotriz</span>
+      <span class="sub">QA Suite — Detección de Bugs en Sitio Automotriz</span>
+    </div>
+    <button class="nav-btn active" data-view="overview"><span class="dot"></span>Overview</button>
+    <button class="nav-btn" data-view="bugs"><span class="dot"></span>Bugs</button>
+    <button class="nav-btn" id="nav-testcases" data-view="testcases" hidden><span class="dot"></span>Casos de Prueba</button>
+    <div class="theme-toggle">
+      <span>Theme</span>
+      <button id="theme-btn" type="button">System</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="view active" id="view-overview">
+      <div class="view-head">
+        <h1>Overview</h1>
+        <span class="meta"></span>
+      </div>
+
+      <div class="tiles"><div class="tile accent-critical"><div class="label">Bugs activos</div><div class="value">20</div></div><div class="tile"><div class="label">High</div><div class="value">2</div></div><div class="tile"><div class="label">Medium</div><div class="value">10</div></div><div class="tile"><div class="label">Low</div><div class="value">8</div></div></div>
+
+      <div class="grid-2">
+        
+        <div class="card">
+          <h2>Severidad de los bugs activos</h2>
+          <p class="card-sub">20 bugs confirmados en este momento</p>
+          <div class="donut-row"><div class="donut" style="background:conic-gradient(var(--sev-high) 0.0% 10.0%, var(--sev-medium) 10.0% 60.0%, var(--sev-low) 60.0% 100.0%)"><div class="hole"><b>20</b><span>bugs</span></div></div><div class="legend"><div class="legend-item"><span class="swatch" style="background:var(--sev-high)"></span>High<span class="n">2</span><span class="pct">10%</span></div><div class="legend-item"><span class="swatch" style="background:var(--sev-medium)"></span>Medium<span class="n">10</span><span class="pct">50%</span></div><div class="legend-item"><span class="swatch" style="background:var(--sev-low)"></span>Low<span class="n">8</span><span class="pct">40%</span></div></div></div>
+        </div>
+      </div>
+
+      
+    </section>
+
+    <section class="view" id="view-bugs">
+      <div class="view-head">
+        <h1>Bugs</h1>
+        <span class="meta">20 bugs activos ahora mismo</span>
+      </div>
+      <div class="card">
+        <div class="bug-list" id="bugs-list"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-testcases">
+      <div class="view-head">
+        <h1>Casos de Prueba</h1>
+        <span class="meta">Última corrida</span>
+      </div>
+      <div class="filters" id="tc-filters">
+        <button class="chip active" data-fval="all">Todos</button>
+        <button class="chip" data-fval="bug">Bugs</button>
+        <button class="chip" data-fval="ok">Conformes</button>
+        <button class="chip" data-fval="no-repro">No reproducibles</button>
+      </div>
+      <div class="card">
+        <table class="data" id="testcases-table">
+          <thead><tr><th>ID</th><th>Título / qué prueba</th><th>Resultado</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var FINDINGS = [{"id":"HALLAZGO-201","title":"Crash intermitente en Firefox por bloqueo de CSP (`eval`)","severity":"High","cause":"La Content-Security-Policy del sitio no incluye `'unsafe-eval'` en `script-src`. Un script ejecuta `eval()`/`new Function()` en tiempo de ejecución — Firefox lo bloquea y, de forma intermitente, la excepción no se maneja y tumba toda la página. Chromium no muestra este error.","repro":"En `/tipos-de-compra` (Firefox): abrir la consola — aparece el error de CSP en cada carga. Recargar varias veces seguidas — en alguna, aparece un \"App Error\" en vez del contenido normal.","reproSteps":["En `/tipos-de-compra` (Firefox): abrir la consola — aparece el error de CSP en cada carga. Recargar varias veces seguidas — en alguna, aparece un \"App Error\" en vez del contenido normal."],"evidence":"Tests automatizados: `bug-01-firefox-csp-eval-crash.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-202","title":"3 vehículos del catálogo sin foto real","severity":"Medium","cause":"El campo de imagen de estos 3 vehículos apunta a un placeholder (`/images/not-found/sin-foto-v2.png`) en vez de a una foto real del modelo.","repro":"En `/catalogo`: 3 tarjetas muestran un gráfico de \"NO HAY FOTO DISPONIBLE\" en vez de una foto del vehículo.","reproSteps":["En `/catalogo`: 3 tarjetas muestran un gráfico de \"NO HAY FOTO DISPONIBLE\" en vez de una foto del vehículo."],"evidence":"Tests automatizados: `bug-02-catalogo-vehiculos-sin-foto.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-203","title":"Dos vehículos distintos usan la misma foto","severity":"Medium","cause":"Ambas tarjetas referencian el mismo archivo de imagen en el campo de foto del vehículo.","repro":"En `/catalogo`, categoría Pickups: dos tarjetas de modelos distintos muestran exactamente la misma fotografía; confirmado en DevTools que ambos `\u003cimg>` cargan la misma URL.","reproSteps":["En `/catalogo`, categoría Pickups: dos tarjetas de modelos distintos muestran exactamente la misma fotografía; confirmado en DevTools que ambos `\u003cimg>` cargan la misma URL."],"evidence":"Tests automatizados: `bug-03-catalogo-foto-duplicada.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-204","title":"\"CATEGORIA\"/\"GARANTIA\" sin tilde en etiquetas cortas","severity":"Medium","cause":"Patrón sistemático: las etiquetas cortas tipo \"overline\" no llevan tilde, mientras los títulos completos de las mismas palabras sí la llevan.","repro":"Footer dice \"CATEGORIA\" sin tilde. En cualquier ficha de vehículo → \"Cotizar Aquí\" y en `/garantia`, aparece \"GARANTIA\" sin tilde.","reproSteps":["Footer dice \"CATEGORIA\" sin tilde. En cualquier ficha de vehículo","\"Cotizar Aquí\" y en `/garantia`, aparece \"GARANTIA\" sin tilde."],"evidence":"Tests automatizados: `bug-04-categoria-garantia-sin-tilde.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-205","title":"Mapa de Google no carga (bloqueado por CSP)","severity":"Medium","cause":"La Content-Security-Policy no incluye el dominio exacto que usa el iframe del mapa en su directiva `frame-src` — el navegador bloquea el iframe.","repro":"En `/sobre-nosotros`, sección de ubicaciones: el área del mapa queda en blanco con ícono de \"recurso roto\". Consola confirma el bloqueo de `frame-src`.","reproSteps":["En `/sobre-nosotros`, sección de ubicaciones: el área del mapa queda en blanco con ícono de \"recurso roto\". Consola confirma el bloqueo de `frame-src`."],"evidence":"Tests automatizados: `bug-05-mapa-google-bloqueado-csp.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-206","title":"Artículo de Noticias con texto de relleno (\"Lorem Ipsum\")","severity":"Medium","cause":"Contenido de prueba (placeholder) que nunca se reemplazó por una noticia real antes de publicar la sección.","repro":"En `/noticias`, sección \"Otras Noticias\": un artículo tiene como título \"LOREM IPSUM DOLOR SIT AMET, CONSECTETUR\" y cuerpo de relleno estándar.","reproSteps":["En `/noticias`, sección \"Otras Noticias\": un artículo tiene como título \"LOREM IPSUM DOLOR SIT AMET, CONSECTETUR\" y cuerpo de relleno estándar."],"evidence":"Tests automatizados: `bug-06-noticias-lorem-ipsum.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-207","title":"Contraste insuficiente en tarjetas de `/repuestos`","severity":"Medium","cause":"El degradado oscuro aplicado sobre la foto de cada tarjeta tiene opacidad fija — insuficiente cuando la foto de fondo es clara.","repro":"En `/repuestos`: tarjetas con fotos de fondo claro (faros) muestran el título en texto blanco casi invisible. Ratio de contraste medido ≈1.32, muy por debajo del mínimo AA (4.5:1).","reproSteps":["En `/repuestos`: tarjetas con fotos de fondo claro (faros) muestran el título en texto blanco casi invisible. Ratio de contraste medido ≈1.32, muy por debajo del mínimo AA (4.5:1)."],"evidence":"Tests automatizados: `bug-07-repuestos-contraste-insuficiente.spec.ts` (decodificación de PNG real vía `png-decode.ts`).","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-208","title":"Tres nombres distintos para la categoría \"Pickups\"","severity":"Low","cause":"Inconsistencia de copy — el botón de filtro, el encabezado de la sección y el menú/footer usan tres textos distintos para la misma categoría.","repro":"En `/catalogo`: el filtro dice \"PICKUP'S\", la sección que despliega dice \"PICK UP\", y el menú/footer dicen \"PICKUPS\".","reproSteps":["En `/catalogo`: el filtro dice \"PICKUP'S\", la sección que despliega dice \"PICK UP\", y el menú/footer dicen \"PICKUPS\"."],"evidence":"Tests automatizados: `bug-08-catalogo-pickups-tres-nombres.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-209","title":"Imagen rota en artículo de Noticias (error 400)","severity":"Low","cause":"La imagen principal del artículo destacado apunta a un archivo que es en realidad la foto de un vehículo no relacionado; el optimizador de imágenes responde 400 para ese archivo.","repro":"En `/noticias`: el artículo destacado no muestra su imagen (fondo gris, ícono de imagen rota). La petición de red a la imagen responde 400.","reproSteps":["En `/noticias`: el artículo destacado no muestra su imagen (fondo gris, ícono de imagen rota). La petición de red a la imagen responde 400."],"evidence":"Tests automatizados: `bug-09-noticias-imagen-rota-400.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-210","title":"\"1 cuotas\" — pluralización incorrecta","severity":"Low","cause":"Template de texto tipo `${cantidad} cuotas` sin lógica de singular/plural — se rompe únicamente cuando cantidad = 1.","repro":"En `/cotizacion`, modalidad \"Contado\": el campo \"CUOTAS\" dice \"1 cuotas\" en vez de \"1 cuota\", mientras el panel resumen de la misma pantalla sí dice correctamente \"1 Cuota\".","reproSteps":["En `/cotizacion`, modalidad \"Contado\": el campo \"CUOTAS\" dice \"1 cuotas\" en vez de \"1 cuota\", mientras el panel resumen de la misma pantalla sí dice correctamente \"1 Cuota\"."],"evidence":"Tests automatizados: `bug-10-cotizacion-un-cuotas-pluralizacion.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-211","title":"\"Noticias\" no está en el menú principal","severity":"Low","cause":"El link a `/noticias` solo se agregó al footer, no al componente de navegación principal.","repro":"El menú superior no incluye \"Noticias\" — solo accesible bajando al footer o escribiendo la URL directamente.","reproSteps":["El menú superior no incluye \"Noticias\" — solo accesible bajando al footer o escribiendo la URL directamente."],"evidence":"Tests automatizados: `bug-11-noticias-fuera-del-menu.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-212","title":"Más de un `\u003ch1>` por página","severity":"Low","cause":"Cada sección de la página parece usar su propio `\u003ch1>` en vez de reservarlo para el título principal — rompe la jerarquía semántica que un lector de pantalla usa para navegar.","repro":"7 de 9 páginas revisadas tienen 2 o más `\u003ch1>` en el DOM (3 en `/repuestos` y `/tipos-de-compra`).","reproSteps":["7 de 9 páginas revisadas tienen 2 o más `\u003ch1>` en el DOM (3 en `/repuestos` y `/tipos-de-compra`)."],"evidence":"Tests automatizados: `bug-12-mas-de-un-h1-por-pagina.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-213","title":"Campo de búsqueda del catálogo sin label y sin foco visible","severity":"Medium","cause":"El input de búsqueda no tiene `id`, `aria-label` ni `\u003clabel>` asociado — el placeholder no es un sustituto accesible. Su clase CSS anula el outline de foco sin ningún estilo alternativo.","repro":"En `/catalogo`: enfocar el campo \"Buscar modelo...\" con teclado no muestra ningún indicador visual de foco; DevTools confirma que no tiene nombre accesible.","reproSteps":["En `/catalogo`: enfocar el campo \"Buscar modelo...\" con teclado no muestra ningún indicador visual de foco; DevTools confirma que no tiene nombre accesible."],"evidence":"Tests automatizados: `bug-13-catalogo-buscador-sin-label-sin-foco.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-214","title":"Metadatos SEO apuntan a `localhost:3000` (solo en QA)","severity":"Medium","cause":"La URL base del sitio para metadatos SEO quedó configurada a `https://localhost:3000` en vez del dominio real — se filtra en `robots.txt`, `sitemap.xml`, `canonical`, Open Graph y JSON-LD. Confirmado que en producción estos mismos campos sí apuntan correctamente a su propio dominio — problema específico de la configuración del ambiente de QA.","repro":"`robots.txt` lista `Sitemap: https://localhost:3000/sitemap.xml`; `canonical` de las 9 páginas revisadas dice siempre `https://localhost:3000/es`; `og:image` y el JSON-LD repiten el mismo patrón.","reproSteps":["`robots.txt` lista `Sitemap: https://localhost:3000/sitemap.xml`; `canonical` de las 9 páginas revisadas dice siempre `https://localhost:3000/es`; `og:image` y el JSON-LD repiten el mismo patrón."],"evidence":"Tests automatizados: `bug-14-seo-localhost-3000.spec.ts` (incluye contraste con producción).","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-215","title":"Open Graph y datos estructurados son genéricos","severity":"Medium","cause":"`og:title`, `og:description`, `og:image` y el JSON-LD son idénticos en las 9 páginas revisadas — no se parametrizan con el contenido específico de cada página, a diferencia de `\u003ctitle>` y `meta description`.","repro":"En una ficha de vehículo, `\u003ctitle>` sí menciona el modelo correctamente, pero `og:title`/`og:description`/`og:image` dicen genéricamente el nombre del sitio, sin mencionar el vehículo — compartir el link por WhatsApp/Facebook muestra una vista previa genérica.","reproSteps":["En una ficha de vehículo, `\u003ctitle>` sí menciona el modelo correctamente, pero `og:title`/`og:description`/`og:image` dicen genéricamente el nombre del sitio, sin mencionar el vehículo — compartir el link por WhatsApp/Facebook muestra una vista previa genérica."],"evidence":"Tests automatizados: `bug-15-open-graph-generico.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-216","title":"CSP permite `style-src-attr 'unsafe-inline'`","severity":"Low","cause":"La política CSP usa nonce correctamente en `script-src`, `style-src` y `style-src-elem`, pero `style-src-attr` está configurado como `'self' 'unsafe-inline'` — permite que cualquier atributo `style=\"...\"` se aplique sin nonce, un vector conocido de exfiltración vía CSS (investigación pública de PortSwigger).","repro":"El header `Content-Security-Policy` de cualquier respuesta confirma `style-src-attr 'self' 'unsafe-inline'`, sin nonce, a diferencia de las demás directivas de estilo.","reproSteps":["El header `Content-Security-Policy` de cualquier respuesta confirma `style-src-attr 'self' 'unsafe-inline'`, sin nonce, a diferencia de las demás directivas de estilo."],"evidence":"Tests automatizados: `bug-16-csp-style-src-attr-unsafe-inline.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-217","title":"Home carga la imagen del carrusel dos veces (optimizada + sin optimizar)","severity":"Medium","cause":"La imagen del carrusel se carga dos veces: una optimizada vía Next.js Image (≈142 KB) y otra sin optimizar como `background-image` CSS de un div posicionado detrás (≈4 MB). Ese segundo recurso representa ≈88% del peso total de la página.","repro":"En Home, DevTools → Network muestra la misma imagen cargando dos veces por rutas distintas; el LCP de Home (2.4–2.9s) queda en el límite \"Needs Improvement\", mientras el resto de páginas revisadas está cómodamente bajo 2.5s.","reproSteps":["En Home, DevTools","Network muestra la misma imagen cargando dos veces por rutas distintas; el LCP de Home (2.4–2.9s) queda en el límite \"Needs Improvement\", mientras el resto de páginas revisadas está cómodamente bajo 2.5s."],"evidence":"Tests automatizados: `bug-17-home-carousel-imagen-duplicada.spec.ts` (Core Web Vitals medidos vía `PerformanceObserver`).","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-218","title":"Banner de evento en Noticias usa una imagen guardada en la carpeta de fotos de vehículos","severity":"Low","cause":"La imagen del banner de un evento promocional se sirve desde la carpeta usada en todo el sitio para fotos de vehículos — parece un archivo mal nombrado y guardado en la carpeta equivocada.","repro":"En `/noticias`, la tarjeta del evento carga su imagen desde la ruta de fotos de vehículos (confirmado en DevTools → Network).","reproSteps":["En `/noticias`, la tarjeta del evento carga su imagen desde la ruta de fotos de vehículos (confirmado en DevTools","Network)."],"evidence":"Tests automatizados: `bug-18-noticias-banner-imagen-carpeta-autos.spec.ts`.","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-219","title":"Cotizador con montos y cuotas erróneos (datos mock/placeholder)","severity":"High","cause":"Usa datos mock/placeholder erróneos para calcular montos y cuotas, en vez de la data real de financiamiento. Mitigado temporalmente con un botón de contacto a WhatsApp en vez de mostrar el monto incorrecto.","repro":"En `/cotizacion`, modalidad \"Financiamiento Auto Club 24\": el campo de precio/mensualidad muestra \"Consultar\" con botón a WhatsApp (mitigado). Confirmado tanto en QA como en producción.","reproSteps":["En `/cotizacion`, modalidad \"Financiamiento Auto Club 24\": el campo de precio/mensualidad muestra \"Consultar\" con botón a WhatsApp (mitigado). Confirmado tanto en QA como en producción."],"evidence":"Tests automatizados: `bug-19-cotizador-datos-mock-consultar.spec.ts` (QA y producción).","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false},{"id":"HALLAZGO-220","title":"Íconos de redes sociales del footer no llevan a la cuenta oficial","severity":"Low","cause":"Los íconos de Instagram, Facebook y TikTok del footer apuntan a la homepage genérica de cada plataforma, no al perfil oficial. Solo WhatsApp está bien configurado.","repro":"El `href` de los tres íconos apunta a la homepage genérica de cada red social, confirmado tanto en QA como en producción.","reproSteps":["El `href` de los tres íconos apunta a la homepage genérica de cada red social, confirmado tanto en QA como en producción."],"evidence":"Tests automatizados: `bug-20-redes-sociales-footer-sin-cuenta-oficial.spec.ts` (QA y producción).","note":"","tcs":[],"resolvedByMd":false,"hasEvidence":false}];
+  var TESTCASES = [];
+  var RES_LABEL = {bug:'Bug', ok:'Conforme', 'no-repro':'No reproducible'};
+
+  function escapeHtml(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function sortedFindings(){
+    var order = {High:0, Medium:1, Low:2};
+    return FINDINGS.slice().sort(function(a,b){ return (order[a.severity]||9)-(order[b.severity]||9); });
+  }
+
+  function renderBugs(){
+    var list = document.getElementById('bugs-list');
+    var items = sortedFindings();
+    if(!items.length){ list.innerHTML = '<p class="empty-state">Sin bugs activos.</p>'; return; }
+    list.innerHTML = items.map(function(f){
+      var evidence = f.hasEvidence
+        ? '<div class="evidence-shot"><img src="evidence/'+encodeURIComponent(f.id)+'.png" alt="Evidencia '+escapeHtml(f.id)+'" loading="lazy"></div>'
+        : '<p class="evidence-missing">Sin evidencia capturada todavía.</p>';
+      return '<div class="bug-item">' +
+        '<div class="bug-head" data-toggle>' +
+          '<span class="sev-pill sev-'+f.severity+'">'+f.severity+'</span>' +
+          '<span class="bug-id">'+escapeHtml(f.id)+'</span>' +
+          '<span class="bug-title">'+escapeHtml(f.title)+'</span>' +
+          '<span class="bug-tcs">'+f.tcs.map(escapeHtml).join(', ')+'</span>' +
+          '<span class="bug-chevron">&#9656;</span>' +
+        '</div>' +
+        '<div class="bug-body">' +
+          '<dl class="bug-kv">' +
+            (f.descripcion ? '<dt>Descripción</dt><dd>'+escapeHtml(f.descripcion)+'</dd>' : '') +
+            (f.cause ? '<dt>Causa</dt><dd>'+escapeHtml(f.cause)+'</dd>' : '') +
+            (f.reproSteps && f.reproSteps.length
+              ? '<dt>Pasos para reproducir</dt><dd><ol class="repro-steps">'+f.reproSteps.map(function(s){return '<li>'+escapeHtml(s)+'</li>';}).join('')+'</ol></dd>'
+              : '') +
+          '</dl>' +
+          '<div class="bug-kv" style="grid-template-columns:140px 1fr;"><dt>Evidencia</dt><dd>'+evidence+'</dd></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    list.querySelectorAll('[data-toggle]').forEach(function(head){
+      head.addEventListener('click', function(){ head.parentElement.classList.toggle('open'); });
+    });
+  }
+
+  function renderTestCases(filter){
+    var tbody = document.querySelector('#testcases-table tbody');
+    var filtered = TESTCASES.filter(function(t){ return filter==='all' || t.result===filter; });
+    if(!filtered.length){ tbody.innerHTML = '<tr><td colspan="3"><p class="empty-state">Nada que mostrar con este filtro.</p></td></tr>'; return; }
+    tbody.innerHTML = filtered.map(function(t){
+      var pill = '<span class="res-pill res-'+t.result+'">'+RES_LABEL[t.result]+'</span>';
+      if(t.result==='bug') pill += '<span class="bug-ref">'+escapeHtml(t.findingId)+'</span>';
+      return '<tr>' +
+        '<td class="id-cell">'+t.tcs.map(escapeHtml).join(', ')+'</td>' +
+        '<td class="wrap">'+escapeHtml(t.title)+'</td>' +
+        '<td>'+pill+'</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('#tc-filters .chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('#tc-filters .chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      renderTestCases(chip.dataset.fval);
+    });
+  });
+
+  var themeBtn = document.getElementById('theme-btn');
+  var themeState = 'system';
+  function applyTheme(){
+    if(themeState==='system'){ document.documentElement.removeAttribute('data-theme'); themeBtn.textContent='System'; }
+    else { document.documentElement.setAttribute('data-theme', themeState); themeBtn.textContent = themeState==='dark' ? 'Dark' : 'Light'; }
+  }
+  themeBtn.addEventListener('click', function(){
+    themeState = themeState==='system' ? 'light' : themeState==='light' ? 'dark' : 'system';
+    try{ localStorage.setItem('hallazgos-dash-theme', themeState); }catch(e){}
+    applyTheme();
+  });
+  try{ var saved = localStorage.getItem('hallazgos-dash-theme'); if(saved){ themeState = saved; } }catch(e){}
+  applyTheme();
+
+  if(TESTCASES.length){ document.getElementById('nav-testcases').hidden = false; }
+
+  renderBugs();
+  if(TESTCASES.length) renderTestCases('all');
+})();
+</script>
+</body>
+</html>
